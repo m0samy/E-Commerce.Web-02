@@ -1,11 +1,16 @@
 ﻿
 using DomainLayer.Contracts;
+using E_Commerce.Web.CustomMiddleWares;
+using E_Commerce.Web.Extensions;
+using E_Commerce.Web.Factories;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
 using Persistence.Data;
 using Persistence.Repositories;
 using Service;
 using ServiceAbstraction;
+using Shared.ErrorModels;
 
 namespace E_Commerce.Web
 {
@@ -17,37 +22,37 @@ namespace E_Commerce.Web
 
             #region Add services to the container.
             builder.Services.AddControllers();
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
-            builder.Services.AddDbContext<StoreDbContext>(Options =>
-            {
-                Options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
-            });
-            // DataSeeding
-            builder.Services.AddScoped<IDataSeeding, DataSeeding>();
-            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-            builder.Services.AddAutoMapper(typeof(Service.AssemblyReference).Assembly);
-            builder.Services.AddScoped<IServiceManeger, ServiceManager>();
+
+           builder.Services.AddSwaggerServices();
+
+            builder.Services.AddInfrastracureServices(builder.Configuration);
+            builder.Services.AddApplicationServices();
+
+            builder.Services.AddWebApplicationServices();
+
+            builder.Services.AddJWTService(builder.Configuration);
             #endregion
 
             var app = builder.Build();
 
 
             //DataSeeding
-            using var Scoope = app.Services.CreateScope();
-            var objectDataSeeding = Scoope.ServiceProvider.GetRequiredService<IDataSeeding>();
-            await objectDataSeeding.DataSeedAsync();
+            await app.SeedDataBaseAsync();
 
 
             #region Configure the HTTP request pipeline.
+            app.USeCustomExceptionMiddleWare();
+
             if (app.Environment.IsDevelopment())
             {
-                app.UseSwagger();
-                app.UseSwaggerUI();
+                app.UseSwaggerMiddleWares();
             }
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+            app.UseRouting();
+            app.UseAuthentication();
+            app.UseAuthorization();
             app.MapControllers();
             #endregion
 

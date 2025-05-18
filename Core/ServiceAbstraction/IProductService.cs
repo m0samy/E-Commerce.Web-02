@@ -3,14 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Shared.DTO;
+using Shared;
+using Shared.DTO.ProductModuleDTos;
 
 namespace ServiceAbstraction
 {
     public interface IProductService
     {
         //Get All Products
-        Task<IEnumerable<ProductDTo>> GetAllProductsAsync();
+        Task<PaginatedResult<ProductDTo>> GetAllProductsAsync(ProductQueryParams queryParams);
 
         //Get Product By Id
         Task<ProductDTo> GetProductByIdAsync(int id);
@@ -20,5 +21,6 @@ namespace ServiceAbstraction
 
         //Get All Brands
         Task<IEnumerable<BrandDTo>> GetAllBrandsAsync();
+
     }
 }
