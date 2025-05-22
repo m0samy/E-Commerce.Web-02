@@ -27,7 +27,6 @@ namespace Persistence
                    await _dbContext.Database.MigrateAsync();
                 }
 
-
                 if (!_dbContext.ProductBrands.Any())
                 {
                     //Read Data
@@ -53,6 +52,14 @@ namespace Persistence
                     if (Products is not null && Products.Any())
                         await _dbContext.Products.AddRangeAsync(Products);
                 }
+                if (!_dbContext.Set<DeliveryMethod>().Any())
+                {
+                    var DeliveryMethodData = File.OpenRead(@"..\Infrastrucure\Persistence\Data\DataSeed\delivery.json");
+                    var DeliveryMethods = await JsonSerializer.DeserializeAsync<List<DeliveryMethod>>(DeliveryMethodData);
+                    if (DeliveryMethods is not null && DeliveryMethods.Any())
+                        await _dbContext.Set<DeliveryMethod>().AddRangeAsync(DeliveryMethods);
+                }
+
 
                 await _dbContext.SaveChangesAsync();
             }
@@ -96,11 +103,11 @@ namespace Persistence
                     await _userManager.AddToRoleAsync(User02, "SuperAdmin");
                 }
 
-                await _identityDbContext.SaveChangesAsync();
+                //await _identityDbContext.SaveChangesAsync();
             }
             catch (Exception ex)
             {
-
+                Console.WriteLine(ex);
             }
 
 

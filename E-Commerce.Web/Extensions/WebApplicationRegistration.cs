@@ -1,5 +1,7 @@
-﻿using DomainLayer.Contracts;
+﻿using System.Text.Json;
+using DomainLayer.Contracts;
 using E_Commerce.Web.CustomMiddleWares;
+using Swashbuckle.AspNetCore.SwaggerUI;
 
 namespace E_Commerce.Web.Extensions
 {
@@ -23,7 +25,25 @@ namespace E_Commerce.Web.Extensions
         public static IApplicationBuilder UseSwaggerMiddleWares(this IApplicationBuilder app)
         {
             app.UseSwagger();
-            app.UseSwaggerUI();
+            app.UseSwaggerUI(Options =>
+            {
+                Options.ConfigObject = new ConfigObject()
+                {
+                    DisplayRequestDuration = true
+                };
+
+                Options.DocumentTitle = "My E-Commerce API";
+
+                //Options.JsonSerializerOptions = new JsonSerializerOptions()
+                //{
+                //    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                //};
+
+                Options.DocExpansion(DocExpansion.None);
+                Options.EnableFilter();
+
+
+            });
             return app;
         }
     }
